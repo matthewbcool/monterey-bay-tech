@@ -16,7 +16,7 @@ const Contact: React.FC = () => {
 
       <div className='text-center mt-6'>
         <Link
-          href='https://discord.gg/your-discord-link'
+          href='https://discord.gg/5A2xxN8EnB'
           target='_blank'
           rel='noopener noreferrer'>
           <button className='bg-indigo-600 text-white px-6 py-3 rounded hover:bg-indigo-700'>
