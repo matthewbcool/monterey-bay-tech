@@ -39,12 +39,11 @@ const About: React.FC = () => {
         </li>
         <li>
           <strong>Workshops:</strong> Hands-on sessions aimed at learning new
-          skills or improving existing ones. Bring your laptop and an eagerness
-          to learn!
+          skills or improving existing ones.
         </li>
         <li>
           <strong>Socials:</strong> Opportunities to connect, share ideas,
-          collaborate on projects. Maybe create your own startup. Why not?
+          collaborate on projects in a low pressure, social setting.
         </li>
         <li>
           <strong>Show and Tell:</strong> A platform to share your latest
