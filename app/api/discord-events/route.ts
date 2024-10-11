@@ -28,15 +28,25 @@ interface Event {
   image?: string;
   event: any; // Cover image hash (optional)
 }
+
 const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
 const GUILD_ID = process.env.GUILD_ID;
 
 export async function GET() {
+  // Check for missing environment variables
+  if (!DISCORD_BOT_TOKEN || !GUILD_ID) {
+    return NextResponse.json(
+      { message: 'Missing environment variables' },
+      { status: 500 }
+    );
+  }
+
   try {
+    // Fetch events from Discord with cache disabled
     const response = await fetch(
       `https://discord.com/api/v10/guilds/${GUILD_ID}/scheduled-events`,
       {
-        cache: 'no-store',
+        cache: 'no-store', // Ensure the request is not cached
         headers: {
           Authorization: `Bot ${DISCORD_BOT_TOKEN}`,
         },
@@ -44,14 +54,18 @@ export async function GET() {
     );
 
     if (!response.ok) {
-      throw new Error('Failed to fetch events from Discord API');
+      throw new Error(
+        `Failed to fetch events from Discord API: ${response.statusText}`
+      );
     }
 
     const events = await response.json();
+    console.log('Fetched Events:', events); // Log for debugging
 
-    console.log('Events:', events); // Ensure you're logging the entire events array
-
-    return NextResponse.json(events);
+    // Return the response with cache-control header to prevent caching
+    const res = NextResponse.json(events);
+    res.headers.set('Cache-Control', 'no-store, must-revalidate'); // Disable caching
+    return res;
   } catch (error) {
     console.error('Error fetching events:', error);
     return NextResponse.json(

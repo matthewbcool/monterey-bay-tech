@@ -19,7 +19,6 @@ const Header: React.FC = () => {
         {/* Logo with Image */}
         <Link href='/' className='text-2xl font-bold'>
           <div className='flex items-center'>
-            {/* Use Image from /public/assets/MBTM.jpg */}
             <Image
               src='/assets/MBTM.jpg'
               alt='MBTM Logo'
