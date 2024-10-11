@@ -46,7 +46,6 @@ const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, event }) => {
 
         {/* Event Info */}
         <div className='flex items-center mb-4'>
-          <div className='text-2xl text-indigo-600 mr-2'>📅</div>
           <h2 className='text-2xl font-bold'>{event.name}</h2>
         </div>
 
