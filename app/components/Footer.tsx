@@ -7,12 +7,11 @@ const Footer: React.FC = () => {
   const [year, setYear] = useState<number | null>(null);
 
   useEffect(() => {
-    // This will only run on the client
     setYear(new Date().getFullYear());
   }, []);
 
   return (
-    <footer className='bg-gray-800 text-white py-4'>
+    <footer className='bg-gray-800 text-white py-4 mt-auto'>
       <div className='container mx-auto text-center'>
         {year && (
           <p className='text-sm mb-2'>
