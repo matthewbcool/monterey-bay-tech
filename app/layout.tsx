@@ -1,31 +1,19 @@
-import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-import './globals.css';
+'use client';
+
 import Header from './components/Header';
 import Footer from './components/Footer';
-
-const inter = Inter({ subsets: ['latin'] });
-
-export const metadata: Metadata = {
-  title: 'Monterey Bay Tech Meetup',
-  description:
-    'Connecting and inspiring the tech community in the Monterey Bay area.',
-};
+import './globals.css';
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang='en'>
-      <body className={`${inter.className} flex flex-col min-h-screen`}>
+      <body className='flex flex-col min-h-screen'>
         <Header />
-        <main className='flex-grow'>
-          {' '}
-          {/* Ensures main content grows to fill space */}
-          {children}
-        </main>
+        <main className='flex-grow'>{children}</main>
         <Footer />
       </body>
     </html>

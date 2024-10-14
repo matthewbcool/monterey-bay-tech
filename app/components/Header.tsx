@@ -55,21 +55,15 @@ const Header: React.FC = () => {
             <li>
               <Link
                 href='/about'
-                className={`${
-                  pathname === '/about'
-                    ? 'text-gray-300'
-                    : 'hover:text-gray-300'
-                }`}>
+                className={`nav-link ${pathname === '/about' ? 'active' : ''}`}>
                 About
               </Link>
             </li>
             <li>
               <Link
                 href='/contact'
-                className={`${
-                  pathname === '/contact'
-                    ? 'text-gray-300'
-                    : 'hover:text-gray-300'
+                className={`nav-link ${
+                  pathname === '/contact' ? 'active' : ''
                 }`}>
                 Contact
               </Link>

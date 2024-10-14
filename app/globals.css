@@ -9,8 +9,6 @@ header {
   margin-bottom: 2em;
 }
 
-/* Add this to your global CSS file or scoped CSS for smooth fades on links */
-
 /* Fade effect for navigation links */
 .fade-link {
   opacity: 0;
@@ -26,4 +24,36 @@ header {
 /* Buttons */
 button {
   color: #143b88; /* Dark Navy for text */
+}
+/* Base link styles */
+.nav-link {
+  color: #ffffff; /* Default white color */
+  position: relative;
+  padding-bottom: 4px;
+  transition: color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Hover and active state */
+.nav-link:hover,
+.nav-link:focus,
+.nav-link.active {
+  color: #51ffcb;
+  border-bottom: 2px solid #51ffcb;
+}
+
+/* Underline animation */
+.nav-link::before {
+  content: '';
+  position: absolute;
+  width: 0%;
+  height: 2px;
+  bottom: 0;
+  left: 0;
+  background-color: #51ffcb;
+  transition: width 0.3s ease;
+}
+
+.nav-link:hover::before,
+.nav-link.active::before {
+  width: 100%;
 }
