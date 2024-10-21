@@ -57,3 +57,11 @@ button {
 .nav-link.active::before {
   width: 100%;
 }
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 580px;
+  flex-direction: column; /* Align items vertically */
+}
