@@ -27,39 +27,66 @@ const Calendar: React.FC = () => {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [isModalOpen, setModalOpen] = useState(false);
 
+  const storeEventsInLocalStorage = (events: Event[]) => {
+    localStorage.setItem('events', JSON.stringify(events));
+  };
+
+  const loadEventsFromLocalStorage = () => {
+    const storedEvents = localStorage.getItem('events');
+    if (storedEvents) {
+      return JSON.parse(storedEvents);
+    }
+    return null;
+  };
   useEffect(() => {
     const fetchEvents = async () => {
-      try {
-        const response = await fetch('/api/discord-events'); // Fetch from the API route
-        if (!response.ok) {
-          throw new Error('Failed to fetch events');
+      // Generate a random delay for the fetch request so it's not too frequent. I think we are hitting the rate limit?
+      const randomDelay = Math.random() * (3000 - 300) + 500;
+
+      setTimeout(async () => {
+        try {
+          const response = await fetch('/api/discord-events'); // Fetch from the API route
+          if (!response.ok) {
+            throw new Error('Failed to fetch events');
+          }
+
+          const data = await response.json();
+          console.log('Events:', data); // Log the fetched events
+
+          // Map the Discord events to FullCalendar's expected format
+          const fullCalendarEvents = data.map((event: any) => ({
+            id: event.id,
+            title: event.name, // FullCalendar expects `title`
+            start: event.scheduled_start_time, // FullCalendar expects `start`
+            end: event.scheduled_end_time, // FullCalendar expects `end`
+            description: event.description, // For the modal
+            location: event.entity_metadata?.location || 'Online', // Pass location to modal
+            entity_metadata: event.entity_metadata || {}, // Ensure metadata is passed fully
+            scheduled_start_time: event.scheduled_start_time, // Pass original start time to modal
+            scheduled_end_time: event.scheduled_end_time, // Pass original end time to modal
+          }));
+          // Store events in localStorage after fetching
+          storeEventsInLocalStorage(fullCalendarEvents);
+          setEvents(fullCalendarEvents); // Update the events state
+        } catch (error) {
+          const localEvents = loadEventsFromLocalStorage();
+          console.error(
+            'Loading events from local storage: Fetch error: ',
+            error
+          );
+          if (localEvents) {
+            console.log('Loaded events from localStorage');
+            setEvents(localEvents);
+          } else {
+            console.log('No events found in localStorage');
+          }
+        } finally {
+          setLoading(false); // Loading finished
         }
-
-        const data = await response.json();
-        console.log('Events:', data); // Log the fetched events
-
-        // Map the Discord events to FullCalendar's expected format
-        const fullCalendarEvents = data.map((event: any) => ({
-          id: event.id,
-          title: event.name, // FullCalendar expects `title`
-          start: event.scheduled_start_time, // FullCalendar expects `start`
-          end: event.scheduled_end_time, // FullCalendar expects `end`
-          description: event.description, // For the modal
-          location: event.entity_metadata?.location || 'Online', // Pass location to modal
-          entity_metadata: event.entity_metadata || {}, // Ensure metadata is passed fully
-          scheduled_start_time: event.scheduled_start_time, // Pass original start time to modal
-          scheduled_end_time: event.scheduled_end_time, // Pass original end time to modal
-        }));
-
-        setEvents(fullCalendarEvents); // Update the events state
-      } catch (error) {
-        console.error('Error fetching events:', error);
-      } finally {
-        setLoading(false); // Loading finished
-      }
+      }, randomDelay);
     };
 
-    fetchEvents(); // Call the fetch function when the component mounts
+    fetchEvents();
   }, []);
 
   const handleEventClick = (clickInfo: any) => {
@@ -76,7 +103,7 @@ const Calendar: React.FC = () => {
   if (loading) {
     return (
       <div className='loading'>
-        <h3>Loading Calendar</h3>
+        <h3>Loading</h3>
         <svg
           version='1.1'
           id='Layer_1'
