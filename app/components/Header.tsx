@@ -54,9 +54,11 @@ const Header: React.FC = () => {
           <ul className='flex flex-col lg:flex-row lg:space-x-4 space-y-4 lg:space-y-0'>
             <li>
               <Link
-                href='/about'
-                className={`nav-link ${pathname === '/about' ? 'active' : ''}`}>
-                About
+                href='/calendar'
+                className={`nav-link ${
+                  pathname === '/calendar' ? 'active' : ''
+                }`}>
+                Calendar
               </Link>
             </li>
             <li>

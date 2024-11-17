@@ -103,7 +103,7 @@ const Calendar: React.FC = () => {
   if (loading) {
     return (
       <div className='loading'>
-        <h3>Loading</h3>
+        <h3>Loading Monterey Local Tech Events</h3>
         <svg
           version='1.1'
           id='Layer_1'

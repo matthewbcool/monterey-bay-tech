@@ -1,4 +1,4 @@
-import Calendar from './components/Calendar';
+import About from '../app/about/page';
 import { Metadata } from 'next';
 interface Event {
   id: string;
@@ -18,9 +18,7 @@ export const metadata: Metadata = {
 export default async function Home() {
   return (
     <main>
-      <div>
-        <Calendar />
-      </div>
+      <About />
     </main>
   );
 }
