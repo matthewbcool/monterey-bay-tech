@@ -21,7 +21,9 @@ const SenderForm: React.FC = () => {
         m = e.getElementsByTagName(n)[0];
       a.async = true;
       a.src = d;
-      m.parentNode.insertBefore(a, m);
+      if (m.parentNode) {
+        m.parentNode.insertBefore(a, m);
+      }
     })(
       window,
       document,
