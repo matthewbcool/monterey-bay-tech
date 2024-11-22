@@ -16,7 +16,7 @@ const SenderForm: React.FC = () => {
         function () {
           (s[er].q = s[er].q || []).push(arguments);
         }),
-        (s[er].l = 1 * new Date());
+        (s[er].l = 1 * new Date().getTime());
       const a = e.createElement(n),
         m = e.getElementsByTagName(n)[0];
       a.async = true;
