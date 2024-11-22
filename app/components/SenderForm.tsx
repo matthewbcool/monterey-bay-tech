@@ -1,5 +1,12 @@
 import React, { useEffect } from 'react';
 
+declare global {
+  interface Window {
+    Sender: any;
+    sender: any;
+  }
+}
+
 const SenderForm: React.FC = () => {
   useEffect(() => {
     (function (s, e, n, d, er) {
@@ -22,18 +29,20 @@ const SenderForm: React.FC = () => {
       'https://cdn.sender.net/accounts_resources/universal.js',
       'sender'
     );
-    sender('9f6ebaddf82463');
+    window.sender('9f6ebaddf82463');
 
     // Hide the specific element inside the iframe after it has been rendered
     const hideElementInIframe = () => {
-      const iframe = document.querySelector('.sender-form-container iframe');
+      const iframe = document.querySelector(
+        '.sender-form-container iframe'
+      ) as HTMLIFrameElement;
       if (iframe) {
         const iframeDocument =
           iframe.contentDocument || iframe.contentWindow?.document;
         if (iframeDocument) {
           const element = iframeDocument.querySelector(
             'div[style*="margin-top: 20px"] a[href*="sender.net"]'
-          );
+          ) as HTMLElement;
           if (element) {
             element.style.display = 'none';
           }
