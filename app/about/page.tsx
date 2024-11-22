@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Carousel from '../components/Carousel';
+import SenderForm from '../components/SenderForm';
 
 const About: React.FC = () => {
   return (
@@ -26,7 +27,9 @@ const About: React.FC = () => {
         you can share your work, ideas, and knowledge, gain insight from others,
         and stay updated on the latest in the tech world.
       </p>
-      <div className='flex justify-center mt-8'></div>
+      <div className='flex justify-center mt-8'>
+        <SenderForm />
+      </div>
     </div>
   );
 };
