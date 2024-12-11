@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import AvatarSpheres from '../components/AvatarSpheres';
 
 interface Member {
   id: string;
@@ -34,6 +35,11 @@ const Contact: React.FC = () => {
     fetchMembers();
   }, []);
 
+  const avatars = members.map((member) => ({
+    url: member.avatar_url,
+    username: member.username,
+  }));
+
   return (
     <div className='container mx-auto px-6 py-12'>
       <div className='text-center mt-6'>
@@ -47,7 +53,7 @@ const Contact: React.FC = () => {
         </Link>
       </div>
       <div className='mt-12'>
-        <h2 className='text-2xl font-bold text-center mb-6'>Online Now</h2>
+        <h2 className='text-2xl font-bold text-center mb-6'>Members Online</h2>
         {loading ? (
           <p className='text-center'>Loading...</p>
         ) : (
@@ -65,6 +71,9 @@ const Contact: React.FC = () => {
             ))}
           </div>
         )}
+        <div className='mt-12'>
+          <AvatarSpheres avatars={avatars} />
+        </div>
       </div>
     </div>
   );
