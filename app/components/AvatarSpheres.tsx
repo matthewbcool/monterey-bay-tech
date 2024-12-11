@@ -50,13 +50,13 @@ export default function AvatarSpheres({ avatars = [] }: AvatarSpheresProps) {
           intensity={4}
           position={[15, 10, 10]}
           scale={20}
-          onCreated={(self) => self.lookAt(0, 0, 0)}
+          onUpdate={(self) => self.lookAt(0, 0, 0)}
         />
         <Lightformer
           intensity={2}
           position={[-10, 0, -20]}
           scale={[10, 100, 1]}
-          onCreated={(self) => self.lookAt(0, 0, 0)}
+          onUpdate={(self) => self.lookAt(0, 0, 0)}
         />
       </Environment>
     </Canvas>
@@ -70,6 +70,7 @@ function SphereWithDecal({
 }: {
   avatar: string;
   username: string;
+  position: [number, number, number];
 }) {
   const api = useRef<any>();
   const texture = useTexture(avatar);
