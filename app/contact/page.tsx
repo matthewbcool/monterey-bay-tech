@@ -52,7 +52,7 @@ const Contact: React.FC = () => {
           </button>
         </Link>
       </div>
-      <div className='mt-12'>
+      {/*       <div className='mt-12'>
         <h2 className='text-2xl font-bold text-center mb-6'>Members Online</h2>
         {loading ? (
           <p className='text-center'>Loading...</p>
@@ -74,7 +74,7 @@ const Contact: React.FC = () => {
         <div className='mt-12'>
           <AvatarSpheres avatars={avatars} />
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };
