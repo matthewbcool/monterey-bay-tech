@@ -205,7 +205,8 @@
 }
 
 .calendar-shell .fc .fc-day-other .fc-daygrid-day-number {
-  color: #9aa8bd;
+  /* 5.0:1 on white; the old #9aa8bd was 2.4:1 and failed WCAG AA. */
+  color: #5f7089;
 }
 
 .calendar-shell .fc .fc-day-today {
