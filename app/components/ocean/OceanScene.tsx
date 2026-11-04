@@ -11,6 +11,7 @@ import {
   Mesh,
   MeshToonMaterial,
   PMREMGenerator,
+  Vector3,
   type PerspectiveCamera,
 } from 'three';
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
@@ -76,7 +77,7 @@ function BayEnvironment() {
     const pmrem = new PMREMGenerator(gl);
     const environment = pmrem.fromEquirectangular(hdr).texture;
     scene.environment = environment;
-    scene.environmentIntensity = 1.05;
+    scene.environmentIntensity = 0.62;
     pmrem.dispose();
     hdr.dispose();
 
@@ -139,7 +140,7 @@ function MarineSnow({ count = 140 }: { count?: number }) {
  * right edge reappears at the left mid-stroke and keeps swimming.
  */
 function SardineSchools({ compact }: { compact: boolean }) {
-  const { size } = useThree();
+  const { size, gl, camera } = useThree();
   const perSchool = compact ? SCHOOL.count.compact : SCHOOL.count.full;
 
   const schools = useMemo(
@@ -157,8 +158,35 @@ function SardineSchools({ compact }: { compact: boolean }) {
   );
 
   const travel = useRef(0);
+  const pointer = useRef({ x: 0, y: 0, active: false });
+  const world = useMemo(() => new Vector3(), []);
 
   useEffect(() => () => schools.forEach((school) => school.dispose()), [schools]);
+
+  // The hero's copy and scrims sit above the canvas, so listen on the window and
+  // filter by the canvas rect; a listener on the canvas itself never fires.
+  useEffect(() => {
+    if (compact) return;
+    const element = gl.domElement;
+
+    const move = (event: PointerEvent) => {
+      const rect = element.getBoundingClientRect();
+      const inside =
+        event.clientX >= rect.left &&
+        event.clientX <= rect.right &&
+        event.clientY >= rect.top &&
+        event.clientY <= rect.bottom;
+
+      pointer.current.active = inside;
+      if (!inside) return;
+
+      pointer.current.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      pointer.current.y = -(((event.clientY - rect.top) / rect.height) * 2 - 1);
+    };
+
+    window.addEventListener('pointermove', move, { passive: true });
+    return () => window.removeEventListener('pointermove', move);
+  }, [compact, gl]);
 
   useFrame((state, delta) => {
     const dt = Math.min(delta, 0.05);
@@ -171,9 +199,26 @@ function SardineSchools({ compact }: { compact: boolean }) {
     const localWidth = Math.max(6, worldWidth / SCHOOL.scale + 1.5);
     const localTravel = travel.current / SCHOOL.scale;
 
+    // Screen point on the school's plane, converted into local (pre-travel) space.
+    let threatX = 0;
+    let threatY = 0;
+    if (pointer.current.active) {
+      world
+        .set(pointer.current.x, pointer.current.y, 0.5)
+        .unproject(state.camera as PerspectiveCamera)
+        .sub(state.camera.position)
+        .normalize();
+      const reach = (SCHOOL.z - state.camera.position.z) / world.z;
+      threatX = -(state.camera.position.x + world.x * reach) / SCHOOL.scale;
+      threatY = (state.camera.position.y + world.y * reach - SCHOOL.y) / SCHOOL.scale;
+    }
+
     schools.forEach((school, index) => {
+      const offset = localTravel + (index * localWidth) / 2;
       school.setWrapWidth(localWidth);
-      school.setTravel(localTravel + (index * localWidth) / 2);
+      school.setTravel(offset);
+      // Fish are rendered at position − travel, so aim the cursor that far ahead.
+      school.setThreat(threatX + offset, threatY, 0, pointer.current.active);
       school.update(dt);
     });
   });
@@ -335,7 +380,7 @@ const OceanScene: React.FC<OceanSceneProps> = ({ compact, onReady }) => {
       frameloop='always'
       onCreated={({ gl }) => {
         gl.setClearAlpha(0);
-        gl.toneMappingExposure = 1.28;
+        gl.toneMappingExposure = 0.92;
         onReady?.();
       }}
       aria-hidden='true'>
@@ -343,13 +388,14 @@ const OceanScene: React.FC<OceanSceneProps> = ({ compact, onReady }) => {
         <BayEnvironment />
       </Suspense>
 
-      <fogExp2 attach='fog' args={['#0a3346', 0.026]} />
+      <fogExp2 attach='fog' args={['#07242f', 0.034]} />
 
-      {/* The environment map carries ambient light; these two give shape and rim. */}
-      <directionalLight position={[5, 7, 6]} intensity={2.6} color='#fff1d6' />
-      <directionalLight position={[-6, 2.5, -4]} intensity={1.9} color='#5ff0cf' />
-      <directionalLight position={[1.5, 1.5, 7]} intensity={1.1} color='#dff7ff' />
-      <directionalLight position={[2, -3, 5]} intensity={0.7} color='#1d6f7a' />
+      {/* Most of the light comes from the environment map now. A single warm key
+          gives direction, and two dim colour lights keep the shapes readable
+          without washing the water out. */}
+      <directionalLight position={[5, 7, 6]} intensity={1.35} color='#ffeed2' />
+      <directionalLight position={[-6, 2.5, -4]} intensity={0.75} color='#4be0c2' />
+      <directionalLight position={[2, -3, 5]} intensity={0.25} color='#16505c' />
 
       <MarineLife compact={compact} />
       <CameraRig enabled={parallax} />

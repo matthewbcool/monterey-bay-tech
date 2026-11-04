@@ -4,13 +4,13 @@ import React, { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 
 const images = [
-  { src: '/assets/2.jpg', alt: 'Members talking at a Monterey Bay Tech meetup' },
-  { src: '/assets/3.jpg', alt: 'A speaker presenting to the room at a meetup' },
-  { src: '/assets/4.jpg', alt: 'Attendees gathered around laptops during a hack night' },
-  { src: '/assets/5.jpg', alt: 'Small groups chatting after a talk' },
+  { src: '/assets/2.jpg', alt: 'Members talking at a Monterey Bay Tech gathering' },
+  { src: '/assets/3.jpg', alt: 'A speaker presenting to the room' },
+  { src: '/assets/4.jpg', alt: 'Attendees gathered around laptops' },
+  { src: '/assets/5.jpg', alt: 'Small groups chatting after a presentation' },
   { src: '/assets/6.jpg', alt: 'A demo being shown on a projector screen' },
-  { src: '/assets/7.jpg', alt: 'Members arriving at the venue before a meetup' },
-  { src: '/assets/8.jpg', alt: 'The room during a workshop session' },
+  { src: '/assets/7.jpg', alt: 'Members arriving at the venue before a gathering' },
+  { src: '/assets/8.jpg', alt: 'The room during a presentation' },
 ];
 
 const INTERVAL = 6000;
@@ -68,10 +68,11 @@ const Carousel: React.FC = () => {
         <figcaption className='absolute inset-x-0 bottom-0 flex flex-wrap items-end justify-between gap-4 px-5 pb-5 sm:px-7 sm:pb-6'>
           <div>
             <p className='text-[11px] font-bold uppercase tracking-[0.2em] text-[#8ff5da]'>
-              From the meetups
+              When we meet in person
             </p>
             <p className='mt-1 max-w-md text-sm font-medium text-white sm:text-base'>
-              Talks, hack nights and demo nights, all around the bay.
+              Mixers and tech presentations — the handful of times we&rsquo;ve
+              all been in one room.
             </p>
           </div>
 

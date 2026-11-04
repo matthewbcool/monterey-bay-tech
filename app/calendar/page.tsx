@@ -5,7 +5,7 @@ import Calendar from '../components/Calendar';
 export const metadata: Metadata = {
   title: 'Calendar',
   description:
-    'Upcoming tech meetups, hack nights and workshops around the Monterey Bay, pulled from the community Discord calendar.',
+    'What the Monterey Bay Tech community has coming up, pulled straight from our Discord calendar.',
 };
 
 const CalendarPage = () => {
@@ -20,8 +20,8 @@ const CalendarPage = () => {
             Tech events around the Monterey Bay
           </h1>
           <p className='mt-2 text-base leading-relaxed text-[#5a6b85]'>
-            Meetups, hack nights and talks pulled straight from our Discord.
-            Click any event for the full details. Times are shown in your local
+            Everything coming up, pulled straight from our Discord. Click any
+            event for the full details — times are shown in your local
             timezone.
           </p>
         </header>

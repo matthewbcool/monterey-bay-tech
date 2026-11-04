@@ -91,6 +91,12 @@ export function createSchooling(capacity: number, bodyLength: number, traits: Sc
     const u = x / Math.max(1e-6, radii.x);
     return out.set(0, Math.sin(time * .23 + u * 1.3) * radii.y * traits.flex.bend * .5, Math.sin(time * .31 - u * 1.9) * radii.z * traits.flex.bend);
   }
+  // An optional point of avoidance, in local space (a cursor, for instance).
+  const threat = new Vector3();
+  let threatOn = false, threatRadius = spacing * 2.2;
+  function setThreat(x: number, y: number, z: number, active = true, radius = spacing * 2.2) {
+    threat.set(x, y, z); threatOn = active; threatRadius = radius;
+  }
   const p = new Vector3(), q = new Vector3(), v = new Vector3(), force = new Vector3(), sep = new Vector3(), ali = new Vector3(), coh = new Vector3(), mid = new Vector3();
   function nearest(i: number) {
     p.fromArray(position, i * 3); let found = 0;
@@ -134,13 +140,26 @@ export function createSchooling(capacity: number, bodyLength: number, traits: Sc
       centre(p.x, mid); q.subVectors(p, mid).divide(radii).divideScalar(breathe);
       const e = q.length();
       if (e > .75) force.addScaledVector(q.normalize().multiply(radii), -w.envelope * (e - .75));
+      // Avoid the cursor: a soft repulsion that grows as fish get close, plus
+      // a little urgency so they dart away rather than drift.
+      let flight = 0;
+      if (threatOn) {
+        q.subVectors(p, threat);
+        const d = q.length();
+        if (d < threatRadius) {
+          flight = 1 - d / threatRadius;
+          force.addScaledVector(q.divideScalar(Math.max(d, 1e-3)), flight * flight * w.separation * bodyLength * 34);
+        }
+      }
       // Personal wander: smooth, per-fish, small.
       const [wp, wf, wa] = [wander[i * 3], wander[i * 3 + 1], wander[i * 3 + 2]];
       force.x += Math.sin(time * wf + wp) * wa * w.wander * bodyLength;
       force.y += Math.sin(time * wf * 1.3 + wp * 2.1) * wa * .4 * w.wander * bodyLength;
       force.z += Math.cos(time * wf * .8 + wp * 1.7) * wa * w.wander * bodyLength;
       v.addScaledVector(force, dt).multiplyScalar(Math.exp(-.8 * dt));
-      if (v.length() > maxSpeed) v.setLength(maxSpeed);
+      // Fish near the cursor may briefly swim well above cruising speed.
+      const speedLimit = maxSpeed * (1 + 2.2 * flight);
+      if (v.length() > speedLimit) v.setLength(speedLimit);
       p.addScaledVector(v, dt);
       // Hard limit keeps the conservative bounds honest.
       centre(p.x, mid); q.subVectors(p, mid).divide(limit);
@@ -181,5 +200,5 @@ export function createSchooling(capacity: number, bodyLength: number, traits: Sc
     if (count <= 1) { target.min.setScalar(-pad); target.max.setScalar(pad); }
     return target;
   }
-  return { position, velocity, scale, phase, get count() { return count; }, get radii() { return radii; }, reset, update, pose, remove, bounds };
+  return { position, velocity, scale, phase, get count() { return count; }, get radii() { return radii; }, reset, update, pose, remove, bounds, setThreat };
 }
