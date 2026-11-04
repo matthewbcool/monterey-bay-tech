@@ -35,7 +35,6 @@ const OceanHero: React.FC = () => {
   const [compact, setCompact] = useState(false);
   const [canRender, setCanRender] = useState(false);
   const [inView, setInView] = useState(false);
-  const [paused, setPaused] = useState(false);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -114,11 +113,7 @@ const OceanHero: React.FC = () => {
             className={`h-full w-full transition-opacity duration-1000 ${
               ready ? 'opacity-100' : 'opacity-0'
             }`}>
-            <OceanScene
-              paused={paused}
-              compact={compact}
-              onReady={() => setReady(true)}
-            />
+            <OceanScene compact={compact} onReady={() => setReady(true)} />
           </div>
         )}
       </div>
@@ -126,26 +121,23 @@ const OceanHero: React.FC = () => {
       {/* Scrim keeps the copy readable over kelp, jellies and the otter. */}
       <div
         aria-hidden='true'
-        className='absolute inset-0 bg-gradient-to-r from-[#02141c]/95 via-[#02141c]/65 to-transparent'
+        className='absolute inset-0 bg-gradient-to-r from-[#02141c]/90 via-[#02141c]/45 to-transparent'
+      />
+      {/* Fish now cross the whole frame, so the copy column keeps its own scrim. */}
+      <div
+        aria-hidden='true'
+        className='absolute inset-y-0 left-0 w-full bg-gradient-to-r from-[#02141c]/95 via-[#02141c]/75 to-transparent sm:w-[62%]'
       />
       <div
         aria-hidden='true'
         className='absolute inset-x-0 bottom-0 h-28 bg-gradient-to-b from-transparent to-[#031a24]/85'
       />
 
-      <div className='relative mx-auto flex min-h-[600px] w-full max-w-6xl flex-col justify-end px-6 pb-14 pt-24 sm:min-h-[640px] sm:justify-center sm:pb-20 lg:px-8'>
+      <div className='relative mx-auto flex min-h-[600px] w-full max-w-6xl flex-col justify-end px-6 pb-14 pt-20 sm:min-h-[640px] sm:justify-center sm:pb-32 lg:px-8'>
         <div className='max-w-xl'>
-          <p className='flex items-center gap-2 text-xs font-bold uppercase tracking-[0.22em] text-[#8ff5da]'>
-            <span
-              aria-hidden='true'
-              className='inline-block h-1.5 w-1.5 rounded-full bg-[#51ffcb]'
-            />
-            Monterey Bay Tech Meetup
-          </p>
-
           <h1
             id='ocean-hero-heading'
-            className='mt-4 text-4xl font-bold leading-[1.05] tracking-tight text-white sm:text-5xl lg:text-6xl'>
+            className='text-4xl font-bold leading-[1.05] tracking-tight text-white sm:text-5xl lg:text-6xl'>
             A tech community with the ocean in its backyard.
           </h1>
 
@@ -182,35 +174,6 @@ const OceanHero: React.FC = () => {
           </div>
 
           <div className='mt-10 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-white/85'>
-            {sceneActive && (
-              <button
-                type='button'
-                onClick={() => setPaused((value) => !value)}
-                aria-pressed={paused}
-                className='inline-flex items-center gap-2 rounded-full border border-white/40 px-3 py-1.5 font-semibold text-white transition hover:border-white/70 hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#51ffcb] focus-visible:ring-offset-2 focus-visible:ring-offset-[#04222f]'>
-                {paused ? (
-                  <svg
-                    aria-hidden='true'
-                    viewBox='0 0 20 20'
-                    fill='currentColor'
-                    className='h-3 w-3'>
-                    <path d='M6 3l11 7-11 7Z' />
-                  </svg>
-                ) : (
-                  <svg
-                    aria-hidden='true'
-                    viewBox='0 0 20 20'
-                    fill='none'
-                    stroke='currentColor'
-                    strokeWidth='2.5'
-                    className='h-3 w-3'>
-                    <path d='M6 4v12M14 4v12' />
-                  </svg>
-                )}
-                {paused ? 'Play scene' : 'Pause scene'}
-              </button>
-            )}
-
             <p className='max-w-sm leading-relaxed'>
               {sceneActive
                 ? 'Animated: a school of Pacific sardines moves through swaying giant kelp and moon jellies.'

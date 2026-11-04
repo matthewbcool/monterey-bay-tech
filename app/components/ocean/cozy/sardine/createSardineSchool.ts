@@ -7,7 +7,14 @@ import { createPacificSardineModel } from './createPacificSardineModel';
 import { createSchooling } from '../school/schooling';
 import { SARDINE, SARDINE_SCHOOLING } from './definition';
 
-export interface SardineSchoolOptions extends FishOptions { count?: number; capacity?: number }
+export interface SardineSchoolOptions extends FishOptions {
+  count?: number;
+  capacity?: number;
+  /** Keeps a deterministic but distinct formation per school. */
+  seed?: number;
+  /** When set, every fish wraps in local X, giving an endless current. */
+  wrapWidth?: number;
+}
 export interface SardineSchool extends Omit<FishModel, 'physics' | 'parts'> {
   readonly capacity: number;
   readonly count: number;
@@ -19,10 +26,15 @@ export interface SardineSchool extends Omit<FishModel, 'physics' | 'parts'> {
   takeFish(index: number): FishModel;
   /** Uniform size of a render slot relative to the nominal length (fish 0 is 1). */
   sizeAt(index: number): number;
+  /** Advances the endless current; only meaningful with a wrap width. */
+  setTravel(travel: number): void;
+  /** The visible width in local units; fish wrap at its edges. */
+  setWrapWidth(width: number): void;
 }
 
 /** Shared geometry + per-instance morph weights, one visible draw for the entire school. */
-export function createSardineSchool({ count = 48, capacity = 256, lengthMeters = SARDINE.lengthMeters }: SardineSchoolOptions = {}): SardineSchool {
+export function createSardineSchool({ count = 48, capacity = 256, lengthMeters = SARDINE.lengthMeters, seed = 1, wrapWidth: initialWrapWidth = 0 }: SardineSchoolOptions = {}): SardineSchool {
+  let wrapWidth = initialWrapWidth;
   if (!Number.isInteger(capacity) || capacity < 1 || capacity > 256) throw new RangeError('School capacity must be 1–256');
   function validateCount(value: number) {
     if (!Number.isInteger(value) || value < 0 || value > capacity) throw new RangeError(`School count must be 0–${capacity}`);
@@ -43,12 +55,12 @@ export function createSardineSchool({ count = 48, capacity = 256, lengthMeters =
   // r180's node renderer reads this array for a one-instance draw. Keep slot 0 mirrored.
   alive.morphTargetInfluences = weights;
   material.customProgramCacheKey = () => `sardine-school:${alive.count > 1 ? 'many' : 'one'}`;
-  const formation = createSchooling(capacity, lengthMeters, SARDINE_SCHOOLING);
+  const formation = createSchooling(capacity, lengthMeters, SARDINE_SCHOOLING, seed);
   // Fish turn within the school, so pad every axis by the half-length of the largest fish.
   const bounds = new Box3(), sphere = new Sphere(), padding = lengthMeters * .65;
   const worldMatrix = new Matrix4(), unscale = new Vector3();
   let mode: 'slow' | 'fast' = 'slow', lifeState: 'alive' | 'caught' = 'alive';
-  let motionOwner: 'external' | 'path' | 'physics' = 'external', disposed = false, blend = 0, phase = 0;
+  let motionOwner: 'external' | 'path' | 'physics' = 'external', disposed = false, blend = 0, phase = 0, travel = 0;
   const motion = SARDINE.motion, samples = SCHOOL_POSES_PER_CYCLE;
   root.userData = { units: 'metres', speciesId: SARDINE.id, lengthMeters, sizeBasis: SARDINE.sizeBasis, source: SARDINE.source,
     animation: 'instanced shared morph cycles', budget: { drawCalls: 1, trianglesPerFish: (geometry.alive.index?.count??geometry.alive.attributes.position.count)/3, maxCount: 256 },
@@ -68,7 +80,14 @@ export function createSardineSchool({ count = 48, capacity = 256, lengthMeters =
     alive.count = caught.count = count; alive.visible = !dead && count > 0; caught.visible = dead && count > 0;
     const mesh = dead ? caught : alive;
     for (let i = count - 1; i >= 0; i--) {
-      mesh.setMatrixAt(i, formation.pose(i, dead));
+      const matrix = formation.pose(i, dead);
+      // Local X is upstream; fish face -X, so travelling forward means subtracting.
+      if (wrapWidth > 0) {
+        const half = wrapWidth / 2;
+        const wrapped = ((matrix.elements[12] - travel + half) % wrapWidth + wrapWidth) % wrapWidth - half;
+        matrix.elements[12] = wrapped;
+      }
+      mesh.setMatrixAt(i, matrix);
       if (dead) continue;
       const frame = formation.phase[i] / (Math.PI * 2) * samples;
       const first = Math.floor(frame), next = (first + 1) % samples, fraction = frame - first;
@@ -115,6 +134,10 @@ export function createSardineSchool({ count = 48, capacity = 256, lengthMeters =
   setCount(count);
   return { root, visual, bounds, batches: { alive, caught }, capacity, get count() { return count; }, setCount, update, takeFish, dispose,
     sizeAt: (index: number) => formation.scale[index],
+    /** Advances the endless current; only meaningful with a wrap width. */
+    setTravel(next: number) { travel = wrapWidth > 0 ? next % wrapWidth : next; },
+    /** The visible width in local units; fish wrap at its edges. */
+    setWrapWidth(next: number) { wrapWidth = Math.max(0, next); },
     setSwimMode(next, immediate = false) { if (disposed) return; if (next !== 'slow' && next !== 'fast') throw new Error(`Unknown swim mode: ${next}`); mode = next; if (immediate) blend = next === 'fast' ? 1 : 0; pose(); },
     setLifeState(next) { if (disposed) return; if (next !== 'alive' && next !== 'caught') throw new Error(`Unknown fish state: ${next}`); lifeState = next; pose(); },
     setMotionOwner(next) { if (disposed) return; if (!['external', 'path', 'physics'].includes(next)) throw new Error(`Unknown motion owner: ${next}`); motionOwner = next; },

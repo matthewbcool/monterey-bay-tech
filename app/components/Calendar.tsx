@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import listPlugin from '@fullcalendar/list';
@@ -48,6 +48,30 @@ const Calendar: React.FC = () => {
     }
     return null;
   };
+
+  const iconObserver = useRef<MutationObserver | null>(null);
+
+  // FullCalendar renders its chevrons as role="img" with no accessible name.
+  // They duplicate the toolbar buttons' own labels, so hide them from AT. A
+  // callback ref is used because the calendar only mounts after loading.
+  const attachShell = (node: HTMLDivElement | null) => {
+    iconObserver.current?.disconnect();
+    iconObserver.current = null;
+    if (!node) return;
+
+    const hideIcons = () => {
+      node.querySelectorAll('.fc-icon').forEach((icon) => {
+        icon.setAttribute('aria-hidden', 'true');
+        icon.removeAttribute('role');
+      });
+    };
+
+    hideIcons();
+    iconObserver.current = new MutationObserver(hideIcons);
+    iconObserver.current.observe(node, { childList: true, subtree: true });
+  };
+
+  useEffect(() => () => iconObserver.current?.disconnect(), []);
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -134,7 +158,9 @@ const Calendar: React.FC = () => {
   }
 
   return (
-    <div className='calendar-shell w-full max-w-screen-lg mx-auto px-4 lg:px-8'>
+    <div
+      ref={attachShell}
+      className='calendar-shell w-full max-w-screen-lg mx-auto px-4 lg:px-8'>
       <div className='calendar-card'>
         <FullCalendar
           plugins={[dayGridPlugin, listPlugin]} // Add necessary FullCalendar plugins

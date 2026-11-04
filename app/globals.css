@@ -5,7 +5,7 @@
 /* Site header only. This used to target every <header>, which repainted
    page-level headings navy. */
 .site-header {
-  background-color: #143b88; /* Dark Navy */
+  background-color: #0a3346; /* Pacific deep water */
   color: #ffffff; /* White for contrast */
   margin-bottom: 2em;
 }
@@ -24,7 +24,13 @@
 
 /* Buttons */
 button {
-  color: #143b88; /* Dark Navy for text */
+  color: #0a3346; /* Pacific deep water */
+}
+
+/* Page surface: fog over the bay rather than a cool grey. */
+body {
+  background-color: #f4f7fa;
+  color: #0b1b33;
 }
 /* Base link styles */
 .nav-link {
