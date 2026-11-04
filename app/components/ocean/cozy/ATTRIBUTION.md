@@ -16,9 +16,18 @@ from [Monterey Bay Cozy](https://github.com/matthewbcool/Monterey-Bay-Cozy)
 | `sea-otter/*` | `src/models/habitat/sea-otter/*` |
 | `moon-jelly/*` | `src/models/habitat/moon-jelly/*` |
 | `giantKelp.ts` | `src/models/habitat/giantKelp.ts` |
+| `fish/*` | `src/models/shared/fish/*` |
+| `school/schooling.ts` | `src/models/shared/school/schooling.ts` |
+| `assembly.ts` | `src/models/shared/assembly.ts` |
+| `types.ts` | `src/models/types.ts` |
+| `sardine/*` | `src/models/pacific-sardine/*` |
 
 ## Adaptations
 
+- **Sardine school.** `createSardineSchool()` builds one instanced draw for the
+  whole school (shared geometry, per-instance morph weights). The otter model
+  was vendored first but is not used by the hero; it is kept because it is
+  complete and cheap to re-enable.
 - **No distance LOD.** Upstream calls `defineGeometryLods()` (meshoptimizer WASM)
   to build mid/far variants. The hero renders a handful of objects at a fixed
   camera distance, so the vendored `createSeaOtter` builds only the `near`
@@ -26,9 +35,9 @@ from [Monterey Bay Cozy](https://github.com/matthewbcool/Monterey-Bay-Cozy)
   values were changed.
 - **Trimmed prop helpers.** `props.ts` carries only the three helpers the kelp
   factory uses; the rest of the upstream props catalogue is not copied.
-- **Import paths** were rewritten to this directory, and `staticAsset.ts` uses
-  `Array.from(Map)` instead of Map iteration because the site compiles to an ES5
-  target.
+- **Import paths** were rewritten to this directory, and `staticAsset.ts`,
+  `assembly.ts` and `fish/batches.ts` use `Array.from(...)` instead of iterating
+  Maps/iterators directly because the site compiles to an ES5 target.
 - `sea-otter/geometry.ts` declares its `LodLevel` union locally instead of
   importing the LOD module.
 

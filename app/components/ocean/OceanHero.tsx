@@ -126,7 +126,7 @@ const OceanHero: React.FC = () => {
       {/* Scrim keeps the copy readable over kelp, jellies and the otter. */}
       <div
         aria-hidden='true'
-        className='absolute inset-0 bg-gradient-to-r from-[#02141c]/92 via-[#02141c]/55 to-transparent'
+        className='absolute inset-0 bg-gradient-to-r from-[#02141c]/95 via-[#02141c]/65 to-transparent'
       />
       <div
         aria-hidden='true'
@@ -213,8 +213,8 @@ const OceanHero: React.FC = () => {
 
             <p className='max-w-sm leading-relaxed'>
               {sceneActive
-                ? 'Animated: a sea otter floats at the surface above swaying giant kelp and moon jellies.'
-                : 'Illustration: a sea otter floats at the surface above swaying giant kelp and moon jellies.'}
+                ? 'Animated: a school of Pacific sardines moves through swaying giant kelp and moon jellies.'
+                : 'Illustration: a school of Pacific sardines moves through swaying giant kelp and moon jellies.'}
             </p>
           </div>
         </div>

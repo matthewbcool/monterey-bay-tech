@@ -11,7 +11,7 @@ import {
   Mesh,
   MeshToonMaterial,
 } from 'three';
-import { createSeaOtter } from './cozy/sea-otter/createSeaOtter';
+import { createSardineSchool } from './cozy/sardine/createSardineSchool';
 import { createMoonJelly, updateMoonJelly } from './cozy/moon-jelly/createMoonJelly';
 import { createGiantKelp } from './cozy/giantKelp';
 import { disposeObject } from './cozy/props';
@@ -34,20 +34,22 @@ interface KelpSlot {
   rotation: number;
 }
 
-// The otter rides the surface line near the top right, so the copy keeps the
+// The school sweeps right to left across the open water, so the copy keeps the
 // left third of the frame clear.
-const OTTER = {
-  position: [1.35, 1.8, 3.0] as [number, number, number],
-  scale: 2.0,
-  // Broadside: the belly-up float reads best in profile, head to the left.
-  rotation: [0.04, -Math.PI / 2 + 0.22, 0.04] as [number, number, number],
+const SCHOOL = {
+  startX: -1.2,
+  endX: 9.5,
+  y: 0.55,
+  z: 1.1,
+  scale: 2.35,
+  speed: 0.52,
 };
 
 const JELLIES: JellySlot[] = [
-  { position: [-1.1, -0.35, 1.5], scale: 3.8, phase: 0.4 },
-  { position: [1.5, -1.25, 0.9], scale: 3.0, phase: 2.6 },
-  { position: [3.35, 0.55, 0.2], scale: 3.4, phase: 4.1 },
-  { position: [-2.4, -1.7, -0.2], scale: 2.6, phase: 5.2 },
+  { position: [-1.1, -0.55, 1.5], scale: 3.6, phase: 0.4 },
+  { position: [1.5, -1.35, 0.9], scale: 2.9, phase: 2.6 },
+  { position: [3.35, 0.65, 0.2], scale: 3.2, phase: 4.1 },
+  { position: [-2.4, -1.8, -0.2], scale: 2.5, phase: 5.2 },
 ];
 
 const KELP: KelpSlot[] = [
@@ -108,7 +110,7 @@ function MarineSnow({ count = 140 }: { count?: number }) {
 function MarineLife({ paused, compact }: { paused: boolean; compact: boolean }) {
   const jellies = useMemo(
     () => {
-      const slots = JELLIES.slice(0, compact ? 3 : JELLIES.length);
+      const slots = JELLIES.slice(0, compact ? 2 : 3);
       return slots.map((slot, index) => {
         const root = createMoonJelly({ diameterMeters: 0.26, seed: 41 + index * 7 });
 
@@ -165,19 +167,28 @@ function MarineLife({ paused, compact }: { paused: boolean; compact: boolean }) 
     [compact]
   );
 
-  const otter = useMemo(
-    () => createSeaOtter({ seed: 11, pose: 'float', lengthMeters: 1.2 }),
-    []
+  // One instanced draw for the whole school: 256 slots of shared geometry with
+  // per-instance morph weights, so the count is cheap.
+  const school = useMemo(
+    () =>
+      createSardineSchool({
+        count: compact ? 110 : 190,
+        capacity: 256,
+        lengthMeters: 0.25,
+      }),
+    [compact]
   );
+
+  const travelX = useRef(SCHOOL.startX);
 
   // Factories own their geometry and materials, so release them on unmount.
   useEffect(
     () => () => {
-      otter.dispose();
+      school.dispose();
       jellies.forEach(({ root }) => disposeObject(root));
       kelp.forEach(({ root }) => disposeObject(root));
     },
-    [otter, jellies, kelp]
+    [school, jellies, kelp]
   );
 
   useFrame((state, delta) => {
@@ -186,11 +197,18 @@ function MarineLife({ paused, compact }: { paused: boolean; compact: boolean }) 
     const dt = Math.min(delta, 0.05);
     const time = state.clock.elapsedTime;
 
-    otter.update(dt, { speed: 0.22 });
-    otter.root.position.y = OTTER.position[1] + Math.sin(time * 0.5) * 0.06;
-    otter.root.rotation.y =
-      OTTER.rotation[1] + Math.sin(time * 0.19) * 0.05;
-    otter.root.rotation.z = OTTER.rotation[2] + Math.sin(time * 0.34) * 0.025;
+    school.update(dt);
+    travelX.current += dt * SCHOOL.speed;
+    if (travelX.current > SCHOOL.endX) travelX.current = SCHOOL.startX;
+
+    school.root.position.set(
+      travelX.current,
+      SCHOOL.y + Math.sin(time * 0.21) * 0.12,
+      SCHOOL.z
+    );
+    // Head is -X, so the school faces its direction of travel.
+    school.root.rotation.y = Math.PI;
+    school.root.rotation.z = Math.sin(time * 0.19) * 0.03;
 
     jellies.forEach(({ root, slot }, index) => {
       updateMoonJelly(root, dt);
@@ -228,10 +246,10 @@ function MarineLife({ paused, compact }: { paused: boolean; compact: boolean }) 
       ))}
 
       <primitive
-        object={otter.root}
-        position={OTTER.position}
-        rotation={OTTER.rotation}
-        scale={OTTER.scale}
+        object={school.root}
+        position={[SCHOOL.startX, SCHOOL.y, SCHOOL.z]}
+        rotation={[0, Math.PI, 0]}
+        scale={SCHOOL.scale}
       />
 
       <MarineSnow count={compact ? 80 : 150} />
