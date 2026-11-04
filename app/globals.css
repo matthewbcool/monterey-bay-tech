@@ -2,8 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Header */
-header {
+/* Site header only. This used to target every <header>, which repainted
+   page-level headings navy. */
+.site-header {
   background-color: #143b88; /* Dark Navy */
   color: #ffffff; /* White for contrast */
   margin-bottom: 2em;

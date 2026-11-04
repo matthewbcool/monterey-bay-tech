@@ -14,7 +14,7 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className='text-white shadow-lg'>
+    <header className='site-header text-white shadow-lg'>
       <div className='container mx-auto flex justify-between items-center py-4 px-6'>
         {/* Logo with Image */}
         <Link href='/' className='text-2xl font-bold'>
