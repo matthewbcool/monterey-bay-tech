@@ -133,7 +133,7 @@ const OceanHero: React.FC = () => {
         className='absolute inset-x-0 bottom-0 h-28 bg-gradient-to-b from-transparent to-[#031a24]/85'
       />
 
-      <div className='relative mx-auto flex min-h-[600px] w-full max-w-6xl flex-col justify-end px-6 pb-14 pt-24 sm:min-h-[640px] sm:justify-center sm:pb-20 lg:px-8'>
+      <div className='relative mx-auto flex min-h-[600px] w-full max-w-6xl flex-col justify-end px-6 pb-14 pt-20 sm:min-h-[640px] sm:justify-center sm:pb-32 lg:px-8'>
         <div className='max-w-xl'>
           <h1
             id='ocean-hero-heading'
