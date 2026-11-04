@@ -42,10 +42,16 @@ const About: React.FC = () => {
               simply loves technology, this group is for you.
             </p>
             <p>
-              Members of every skill level and interest are welcome — AI,
-              programming, software development, IT, hardware, cybersecurity,
-              startups or the latest gadgets. It&rsquo;s an open space to share
-              your work, swap ideas and stay current with the tech world.
+              Most of what we do happens online, with in-person gatherings when
+              we can arrange them — a mixer, a round of tech presentations.
+              Anyone at any skill level is welcome, whether you work in AI,
+              software, IT, hardware, security or are just curious.
+            </p>
+            <p>
+              Our current big collaboration is <strong>Cozy Webgame</strong>: an
+              open project where you can pick up something new, contribute a
+              piece, or just watch it come together. That&rsquo;s the hope, at
+              least — that we learn by building in public, together.
             </p>
           </div>
         </div>

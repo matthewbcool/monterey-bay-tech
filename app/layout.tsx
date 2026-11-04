@@ -14,13 +14,13 @@ export const metadata: Metadata = {
     template: '%s | Monterey Bay Tech',
   },
   description:
-    'Meetups, hack nights, talks and workshops for the tech community around the Monterey Bay.',
+    'An inclusive tech community around Monterey Bay — online most of the time, in person when we can, building Cozy Webgame together.',
   openGraph: {
     type: 'website',
     siteName: 'Monterey Bay Tech',
     title: 'Monterey Bay Tech',
     description:
-      'Meetups, hack nights, talks and workshops for the tech community around the Monterey Bay.',
+      'An inclusive tech community around Monterey Bay — online most of the time, in person when we can, building Cozy Webgame together.',
     url: '/',
   },
 };

@@ -143,10 +143,10 @@ const OceanHero: React.FC = () => {
           </h1>
 
           <p className='mt-5 max-w-lg text-base leading-relaxed text-white/85 sm:text-lg'>
-            We bring together people in and around Monterey Bay who love
-            technology — engineers, students, founders and the tech-curious.
-            Talks, hack nights and workshops at every level. Come for the code,
-            stay for the people.
+            An online-first community of engineers, students, founders and the
+            tech-curious around Monterey Bay. We meet in person when we can, and
+            right now we&rsquo;re building Cozy Webgame together — our first big
+            collaboration, open to anyone who wants to learn.
           </p>
 
           <p id='ocean-hero-description' className='sr-only'>
