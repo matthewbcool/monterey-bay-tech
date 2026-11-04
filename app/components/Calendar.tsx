@@ -4,7 +4,9 @@ import React, { useState, useEffect } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import listPlugin from '@fullcalendar/list';
+import type { EventClickArg, EventContentArg } from '@fullcalendar/core';
 import EventModal from './EventModal'; // Assuming you have an EventModal component
+import './calendar-theme.css';
 
 interface Event {
   id: string;
@@ -28,16 +30,25 @@ const Calendar: React.FC = () => {
   const [isModalOpen, setModalOpen] = useState(false);
 
   const storeEventsInLocalStorage = (events: Event[]) => {
-    localStorage.setItem('events', JSON.stringify(events));
+    try {
+      localStorage.setItem('events', JSON.stringify(events));
+    } catch {
+      // Private mode / storage full - the calendar still works from memory.
+    }
   };
 
-  const loadEventsFromLocalStorage = () => {
-    const storedEvents = localStorage.getItem('events');
-    if (storedEvents) {
-      return JSON.parse(storedEvents);
+  const loadEventsFromLocalStorage = (): Event[] | null => {
+    try {
+      const storedEvents = localStorage.getItem('events');
+      if (storedEvents) {
+        return JSON.parse(storedEvents);
+      }
+    } catch {
+      // Malformed cache - treat it as empty.
     }
     return null;
   };
+
   useEffect(() => {
     const fetchEvents = async () => {
       // Generate a random delay for the fetch request so it's not too frequent. I think we are hitting the rate limit?
@@ -51,7 +62,6 @@ const Calendar: React.FC = () => {
           }
 
           const data = await response.json();
-          console.log('Events:', data); // Log the fetched events
 
           // Map the Discord events to FullCalendar's expected format
           const fullCalendarEvents = data.map((event: any) => ({
@@ -89,12 +99,11 @@ const Calendar: React.FC = () => {
     fetchEvents();
   }, []);
 
-  const handleEventClick = (clickInfo: any) => {
+  const handleEventClick = (clickInfo: EventClickArg) => {
     const clickedEvent = events.find(
       (event) => event.id === clickInfo.event.id
     );
     if (clickedEvent) {
-      console.log('Selected Event:', clickedEvent); // Log the clicked event for debugging
       setSelectedEvent(clickedEvent); // Set the selected event for the modal
       setModalOpen(true); // Open the modal
     }
@@ -102,101 +111,87 @@ const Calendar: React.FC = () => {
 
   if (loading) {
     return (
-      <div className='loading'>
-        <h3>Loading Monterey Local Tech Events</h3>
-        <svg
-          version='1.1'
-          id='Layer_1'
-          xmlns='http://www.w3.org/2000/svg'
-          xmlnsXlink='http://www.w3.org/1999/xlink'
-          x='0px'
-          y='0px'
-          width='24px'
-          height='30px'
-          viewBox='0 0 24 30'
-          xmlSpace='preserve'>
-          <rect x='0' y='13' width='4' height='5' fill='#333'>
-            <animate
-              attributeName='height'
-              attributeType='XML'
-              values='5;21;5'
-              begin='0s'
-              dur='0.6s'
-              repeatCount='indefinite'
-            />
-            <animate
-              attributeName='y'
-              attributeType='XML'
-              values='13; 5; 13'
-              begin='0s'
-              dur='0.6s'
-              repeatCount='indefinite'
-            />
-          </rect>
-          <rect x='10' y='13' width='4' height='5' fill='#333'>
-            <animate
-              attributeName='height'
-              attributeType='XML'
-              values='5;21;5'
-              begin='0.15s'
-              dur='0.6s'
-              repeatCount='indefinite'
-            />
-            <animate
-              attributeName='y'
-              attributeType='XML'
-              values='13; 5; 13'
-              begin='0.15s'
-              dur='0.6s'
-              repeatCount='indefinite'
-            />
-          </rect>
-          <rect x='20' y='13' width='4' height='5' fill='#333'>
-            <animate
-              attributeName='height'
-              attributeType='XML'
-              values='5;21;5'
-              begin='0.3s'
-              dur='0.6s'
-              repeatCount='indefinite'
-            />
-            <animate
-              attributeName='y'
-              attributeType='XML'
-              values='13; 5; 13'
-              begin='0.3s'
-              dur='0.6s'
-              repeatCount='indefinite'
-            />
-          </rect>
-        </svg>
+      <div className='calendar-shell w-full max-w-screen-lg mx-auto px-4 lg:px-8'>
+        <div className='calendar-card' aria-busy='true'>
+          <div className='calendar-skeleton__toolbar'>
+            <div className='calendar-skeleton__pill calendar-skeleton__pill--wide' />
+            <div className='calendar-skeleton__pill calendar-skeleton__pill--narrow' />
+          </div>
+          <div className='calendar-skeleton__grid'>
+            {Array.from({ length: 35 }).map((_, index) => (
+              <div key={index} className='calendar-skeleton__cell'>
+                <div className='calendar-skeleton__line calendar-skeleton__line--short' />
+                {index % 5 === 1 && (
+                  <div className='calendar-skeleton__line calendar-skeleton__line--event' />
+                )}
+              </div>
+            ))}
+          </div>
+          <span className='sr-only'>Loading Monterey local tech events</span>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className='w-full max-w-screen-lg mx-auto px-4 lg:px-8'>
-      <FullCalendar
-        plugins={[dayGridPlugin, listPlugin]} // Add necessary FullCalendar plugins
-        initialView='dayGridMonth' // Set the initial view to month
-        events={events} // Pass the mapped events to FullCalendar
-        eventClick={handleEventClick} // Handle event clicks to open modal
-        headerToolbar={{
-          left: 'prev,next today',
-          center: 'title',
-          right: 'dayGridMonth,listWeek',
-        }}
-        views={{
-          dayGridMonth: {
-            buttonText: 'Month',
-          },
-          listWeek: {
-            buttonText: 'List',
-          },
-        }}
-        height='auto'
-        contentHeight='auto'
-      />
+    <div className='calendar-shell w-full max-w-screen-lg mx-auto px-4 lg:px-8'>
+      <div className='calendar-card'>
+        <FullCalendar
+          plugins={[dayGridPlugin, listPlugin]} // Add necessary FullCalendar plugins
+          initialView='dayGridMonth' // Set the initial view to month
+          events={events} // Pass the mapped events to FullCalendar
+          eventClick={handleEventClick} // Handle event clicks to open modal
+          eventContent={(arg: EventContentArg) =>
+            arg.view.type.startsWith('dayGrid') ? (
+              <div className='fc-event-chip'>
+                {arg.timeText && (
+                  <span className='fc-event-chip__time'>{arg.timeText}</span>
+                )}
+                <span className='fc-event-chip__title'>
+                  {arg.event.title}
+                </span>
+              </div>
+            ) : (
+              <span>{arg.event.title}</span>
+            )
+          }
+          eventDidMount={(info) => {
+            // Full titles are truncated in month cells, so keep them on hover.
+            info.el.setAttribute('title', info.event.title);
+          }}
+          eventTimeFormat={{
+            hour: 'numeric',
+            minute: '2-digit',
+            meridiem: 'short',
+            omitZeroMinute: true,
+          }}
+          dayMaxEvents={3} // Collapse busy days into a "+N more" link
+          fixedWeekCount={false} // No empty trailing week
+          headerToolbar={{
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,listWeek',
+          }}
+          buttonText={{
+            today: 'Today',
+            month: 'Month',
+            week: 'Week',
+            day: 'Day',
+            list: 'List',
+          }}
+          views={{
+            dayGridMonth: {
+              buttonText: 'Month',
+            },
+            listWeek: {
+              buttonText: 'List',
+            },
+          }}
+          moreLinkText={(count) => `+${count} more`}
+          height='auto'
+          contentHeight='auto'
+        />
+      </div>
       {selectedEvent && (
         <EventModal
           isOpen={isModalOpen}

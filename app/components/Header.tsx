@@ -14,7 +14,7 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className='text-white shadow-lg'>
+    <header className='site-header text-white shadow-lg'>
       <div className='mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-4 lg:px-8'>
         {/* Logo with Image */}
         <Link href='/' className='text-2xl font-bold'>
