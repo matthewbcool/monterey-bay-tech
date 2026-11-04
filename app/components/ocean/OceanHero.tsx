@@ -135,17 +135,9 @@ const OceanHero: React.FC = () => {
 
       <div className='relative mx-auto flex min-h-[600px] w-full max-w-6xl flex-col justify-end px-6 pb-14 pt-24 sm:min-h-[640px] sm:justify-center sm:pb-20 lg:px-8'>
         <div className='max-w-xl'>
-          <p className='flex items-center gap-2 text-xs font-bold uppercase tracking-[0.22em] text-[#8ff5da]'>
-            <span
-              aria-hidden='true'
-              className='inline-block h-1.5 w-1.5 rounded-full bg-[#51ffcb]'
-            />
-            Monterey Bay Tech
-          </p>
-
           <h1
             id='ocean-hero-heading'
-            className='mt-4 text-4xl font-bold leading-[1.05] tracking-tight text-white sm:text-5xl lg:text-6xl'>
+            className='text-4xl font-bold leading-[1.05] tracking-tight text-white sm:text-5xl lg:text-6xl'>
             A tech community with the ocean in its backyard.
           </h1>
 
