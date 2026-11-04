@@ -1,4 +1,5 @@
 import About from '../app/about/page';
+import OceanHero from '../app/components/ocean/OceanHero';
 import { Metadata } from 'next';
 interface Event {
   id: string;
@@ -18,6 +19,7 @@ export const metadata: Metadata = {
 export default async function Home() {
   return (
     <main>
+      <OceanHero />
       <About />
     </main>
   );
