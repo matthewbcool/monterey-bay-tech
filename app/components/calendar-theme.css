@@ -1,11 +1,11 @@
 /*
  * Calendar surface theme for FullCalendar v6 (dayGrid month + list week).
  * Scoped to .calendar-shell so it can never leak into the rest of the site.
- * Brand tokens: navy #143b88, mint #51ffcb, ink #0b1b33, page #f6f8fc.
+ * Brand tokens: navy #0a3346, mint #51ffcb, ink #0b1b33, page #f6f8fc.
  */
 
 .calendar-shell {
-  --cal-navy: #143b88;
+  --cal-navy: #0a3346;
   --cal-navy-deep: #0f2e63;
   --cal-mint: #51ffcb;
   --cal-mint-ink: #0a6b53;

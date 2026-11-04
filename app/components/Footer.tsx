@@ -15,7 +15,7 @@ const Footer: React.FC = () => {
       <div className='container mx-auto text-center'>
         {year && (
           <p className='text-sm mb-2'>
-            &copy; {year} Monterey Bay Tech Meetup. All rights reserved.
+            &copy; {year} Monterey Bay Tech. All rights reserved.
           </p>
         )}
         <p className='text-sm'>

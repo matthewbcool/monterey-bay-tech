@@ -200,10 +200,10 @@ const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, event }) => {
         aria-labelledby={`event-title-${event.id}`}
         className='relative flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-3xl bg-white shadow-2xl sm:max-h-[85vh] sm:max-w-2xl sm:rounded-2xl'>
         {/* Brand accent */}
-        <div className='h-1.5 w-full flex-none bg-gradient-to-r from-[#143b88] via-[#143b88] to-[#51ffcb]' />
+        <div className='h-1.5 w-full flex-none bg-gradient-to-r from-[#0a3346] via-[#0a3346] to-[#51ffcb]' />
 
         <div className='flex items-start gap-4 px-6 pb-4 pt-5 sm:px-8'>
-          <div className='flex h-16 w-16 flex-none flex-col items-center justify-center rounded-xl bg-[#eef4ff] text-[#143b88]'>
+          <div className='flex h-16 w-16 flex-none flex-col items-center justify-center rounded-xl bg-[#eef4ff] text-[#0a3346]'>
             {isValidStartDate ? (
               <>
                 <span className='text-[0.65rem] font-bold uppercase tracking-[0.12em]'>
@@ -236,7 +236,7 @@ const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, event }) => {
             type='button'
             aria-label='Close event details'
             onClick={onClose}
-            className='-mr-1 flex h-9 w-9 flex-none items-center justify-center rounded-full text-[#5a6b85] transition hover:bg-[#f2f6fd] hover:text-[#143b88] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#143b88] focus-visible:ring-offset-2'>
+            className='-mr-1 flex h-9 w-9 flex-none items-center justify-center rounded-full text-[#5a6b85] transition hover:bg-[#f2f6fd] hover:text-[#0a3346] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0a3346] focus-visible:ring-offset-2'>
             <svg
               aria-hidden='true'
               viewBox='0 0 24 24'
@@ -276,7 +276,7 @@ const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, event }) => {
                       href={location}
                       target='_blank'
                       rel='noopener noreferrer'
-                      className='break-all text-[#143b88] underline decoration-[#143b88]/30 underline-offset-2 hover:decoration-[#143b88] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#143b88] focus-visible:ring-offset-2'>
+                      className='break-all text-[#0a3346] underline decoration-[#0a3346]/30 underline-offset-2 hover:decoration-[#0a3346] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0a3346] focus-visible:ring-offset-2'>
                       {location}
                     </a>
                   ) : (
@@ -288,7 +288,7 @@ const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, event }) => {
           </dl>
 
           {event.description && (
-            <div className='mt-4 border-t border-[#e4e9f2] pt-4 text-sm leading-relaxed text-[#44536c] [&_a]:text-[#143b88] [&_a]:underline [&_a]:underline-offset-2 [&_code]:rounded [&_code]:bg-[#f2f6fd] [&_code]:px-1 [&_code]:py-0.5 [&_code]:text-[0.8em] [&_h1]:mb-2 [&_h1]:mt-4 [&_h1]:text-base [&_h1]:font-bold [&_h1]:text-[#0b1b33] [&_h2]:mb-2 [&_h2]:mt-4 [&_h2]:text-base [&_h2]:font-bold [&_h2]:text-[#0b1b33] [&_h3]:mb-2 [&_h3]:mt-3 [&_h3]:font-semibold [&_h3]:text-[#0b1b33] [&_li]:mb-1 [&_ol]:mb-3 [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:mb-3 [&_p:last-child]:mb-0 [&_strong]:font-semibold [&_strong]:text-[#0b1b33] [&_ul]:mb-3 [&_ul]:list-disc [&_ul]:pl-5'>
+            <div className='mt-4 border-t border-[#e4e9f2] pt-4 text-sm leading-relaxed text-[#44536c] [&_a]:text-[#0a3346] [&_a]:underline [&_a]:underline-offset-2 [&_code]:rounded [&_code]:bg-[#f2f6fd] [&_code]:px-1 [&_code]:py-0.5 [&_code]:text-[0.8em] [&_h1]:mb-2 [&_h1]:mt-4 [&_h1]:text-base [&_h1]:font-bold [&_h1]:text-[#0b1b33] [&_h2]:mb-2 [&_h2]:mt-4 [&_h2]:text-base [&_h2]:font-bold [&_h2]:text-[#0b1b33] [&_h3]:mb-2 [&_h3]:mt-3 [&_h3]:font-semibold [&_h3]:text-[#0b1b33] [&_li]:mb-1 [&_ol]:mb-3 [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:mb-3 [&_p:last-child]:mb-0 [&_strong]:font-semibold [&_strong]:text-[#0b1b33] [&_ul]:mb-3 [&_ul]:list-disc [&_ul]:pl-5'>
               <ReactMarkdown
                 components={{
                   a: ({ node, ...props }) => (
@@ -309,14 +309,14 @@ const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, event }) => {
           <button
             type='button'
             onClick={onClose}
-            className='rounded-full px-4 py-2.5 text-sm font-semibold text-[#5a6b85] transition hover:bg-[#eef2f8] hover:text-[#0b1b33] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#143b88] focus-visible:ring-offset-2'>
+            className='rounded-full px-4 py-2.5 text-sm font-semibold text-[#5a6b85] transition hover:bg-[#eef2f8] hover:text-[#0b1b33] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0a3346] focus-visible:ring-offset-2'>
             Close
           </button>
 
           <button
             type='button'
             onClick={handleDownload}
-            className='inline-flex items-center justify-center gap-2 rounded-full border border-[#d8e0ee] bg-white px-4 py-2.5 text-sm font-semibold text-[#143b88] transition hover:border-[#c4d1e6] hover:bg-[#f2f6fd] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#143b88] focus-visible:ring-offset-2'>
+            className='inline-flex items-center justify-center gap-2 rounded-full border border-[#d8e0ee] bg-white px-4 py-2.5 text-sm font-semibold text-[#0a3346] transition hover:border-[#c4d1e6] hover:bg-[#f2f6fd] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0a3346] focus-visible:ring-offset-2'>
             <DownloadIcon />
             Add to calendar
           </button>
@@ -326,7 +326,7 @@ const EventModal: React.FC<EventModalProps> = ({ isOpen, onClose, event }) => {
               href={location}
               target='_blank'
               rel='noopener noreferrer'
-              className='inline-flex items-center justify-center gap-2 rounded-full bg-[#143b88] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#0f2e63] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#143b88] focus-visible:ring-offset-2'>
+              className='inline-flex items-center justify-center gap-2 rounded-full bg-[#0a3346] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#0f2e63] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0a3346] focus-visible:ring-offset-2'>
               <ExternalIcon />
               Open event link
             </a>

@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import React, { Suspense, useEffect, useMemo, useRef, useState } from 'react';
+import { Canvas, useFrame, useLoader, useThree } from '@react-three/fiber';
 import {
   BufferGeometry,
   Color,
@@ -10,14 +10,16 @@ import {
   MathUtils,
   Mesh,
   MeshToonMaterial,
+  PMREMGenerator,
+  type PerspectiveCamera,
 } from 'three';
+import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
 import { createSardineSchool } from './cozy/sardine/createSardineSchool';
 import { createMoonJelly, updateMoonJelly } from './cozy/moon-jelly/createMoonJelly';
 import { createGiantKelp } from './cozy/giantKelp';
 import { disposeObject } from './cozy/props';
 
 interface OceanSceneProps {
-  paused: boolean;
   compact: boolean;
   onReady?: () => void;
 }
@@ -34,34 +36,58 @@ interface KelpSlot {
   rotation: number;
 }
 
-// The school sweeps right to left across the open water, so the copy keeps the
-// left third of the frame clear.
 const SCHOOL = {
-  startX: -1.2,
-  endX: 9.5,
-  y: 0.55,
-  z: 1.1,
-  scale: 2.35,
-  speed: 0.52,
+  y: 0.45,
+  z: 0.9,
+  scale: 2.2,
+  /** World units per second, so fish cross the hero at a steady drift. */
+  speed: 0.85,
+  count: { full: 190, compact: 110 },
 };
 
 const JELLIES: JellySlot[] = [
-  { position: [-1.1, -0.55, 1.5], scale: 3.6, phase: 0.4 },
-  { position: [1.5, -1.35, 0.9], scale: 2.9, phase: 2.6 },
-  { position: [3.35, 0.65, 0.2], scale: 3.2, phase: 4.1 },
-  { position: [-2.4, -1.8, -0.2], scale: 2.5, phase: 5.2 },
+  { position: [-1.4, -0.55, 1.5], scale: 3.6, phase: 0.4 },
+  { position: [2.1, -1.35, 0.9], scale: 2.9, phase: 2.6 },
+  { position: [4.4, 0.85, 0.2], scale: 3.2, phase: 4.1 },
 ];
 
 const KELP: KelpSlot[] = [
-  { position: [-4.8, -3.2, -1.4], height: 5.1, rotation: 0.4 },
-  { position: [-3.3, -3.2, -3.8], height: 4.6, rotation: 1.7 },
+  { position: [-5.6, -3.2, -1.4], height: 5.1, rotation: 0.4 },
+  { position: [-3.6, -3.2, -3.8], height: 4.6, rotation: 1.7 },
   { position: [-0.9, -3.2, -4.6], height: 5.4, rotation: 3.1 },
-  { position: [1.3, -3.2, -4.2], height: 4.4, rotation: 4.4 },
-  { position: [3.2, -3.2, -2.6], height: 4.9, rotation: 5.6 },
-  { position: [5.3, -3.2, -4.8], height: 4.3, rotation: 2.3 },
+  { position: [1.6, -3.2, -4.2], height: 4.4, rotation: 4.4 },
+  { position: [3.6, -3.2, -2.6], height: 4.9, rotation: 5.6 },
+  { position: [6.1, -3.2, -4.8], height: 4.3, rotation: 2.3 },
 ];
 
 const JELLY_GLOW = new Color('#2f97a6');
+
+/**
+ * A 256×128 equirect HDR authored for this page (scripts/make-bay-env.mjs),
+ * blurred into an environment map. It gives the fish and jellies reflection and
+ * ambient bounce that flat directional lights cannot, at 128 kB instead of the
+ * multi-megabyte sky HDRs a stock asset would cost.
+ */
+function BayEnvironment() {
+  const hdr = useLoader(RGBELoader, '/assets/bay-env.hdr');
+  const { gl, scene } = useThree();
+
+  useEffect(() => {
+    const pmrem = new PMREMGenerator(gl);
+    const environment = pmrem.fromEquirectangular(hdr).texture;
+    scene.environment = environment;
+    scene.environmentIntensity = 1.05;
+    pmrem.dispose();
+    hdr.dispose();
+
+    return () => {
+      scene.environment = null;
+      environment.dispose();
+    };
+  }, [hdr, gl, scene]);
+
+  return null;
+}
 
 function MarineSnow({ count = 140 }: { count?: number }) {
   const geometry = useMemo(() => {
@@ -99,7 +125,7 @@ function MarineSnow({ count = 140 }: { count?: number }) {
           size={0.035}
           sizeAttenuation
           transparent
-          opacity={0.45}
+          opacity={0.4}
           depthWrite={false}
         />
       </points>
@@ -107,15 +133,73 @@ function MarineSnow({ count = 140 }: { count?: number }) {
   );
 }
 
-function MarineLife({ paused, compact }: { paused: boolean; compact: boolean }) {
+/**
+ * Two schools, 190 fish each on desktop. Every fish wraps individually across
+ * the full canvas width, so the current never restarts: a sardine leaving the
+ * right edge reappears at the left mid-stroke and keeps swimming.
+ */
+function SardineSchools({ compact }: { compact: boolean }) {
+  const { size } = useThree();
+  const perSchool = compact ? SCHOOL.count.compact : SCHOOL.count.full;
+
+  const schools = useMemo(
+    () =>
+      [0, 1].map((index) =>
+        createSardineSchool({
+          count: perSchool,
+          capacity: 256,
+          lengthMeters: 0.25,
+          seed: 7 + index * 16,
+          wrapWidth: 10,
+        })
+      ),
+    [perSchool]
+  );
+
+  const travel = useRef(0);
+
+  useEffect(() => () => schools.forEach((school) => school.dispose()), [schools]);
+
+  useFrame((state, delta) => {
+    const dt = Math.min(delta, 0.05);
+    travel.current += dt * SCHOOL.speed;
+
+    // Wrap exactly at the visible edge, so the seam is never on screen.
+    const fov = ((state.camera as PerspectiveCamera).fov * Math.PI) / 180;
+    const distance = Math.abs(state.camera.position.z - SCHOOL.z);
+    const worldWidth = 2 * Math.tan(fov / 2) * distance * (size.width / size.height);
+    const localWidth = Math.max(6, worldWidth / SCHOOL.scale + 1.5);
+    const localTravel = travel.current / SCHOOL.scale;
+
+    schools.forEach((school, index) => {
+      school.setWrapWidth(localWidth);
+      school.setTravel(localTravel + (index * localWidth) / 2);
+      school.update(dt);
+    });
+  });
+
+  return (
+    <group position={[0, SCHOOL.y, SCHOOL.z]}>
+      {schools.map((school, index) => (
+        <primitive
+          key={index}
+          object={school.root}
+          rotation={[0, Math.PI, 0]}
+          scale={SCHOOL.scale}
+        />
+      ))}
+    </group>
+  );
+}
+
+function MarineLife({ compact }: { compact: boolean }) {
   const jellies = useMemo(
-    () => {
-      const slots = JELLIES.slice(0, compact ? 2 : 3);
-      return slots.map((slot, index) => {
+    () =>
+      JELLIES.slice(0, compact ? 2 : JELLIES.length).map((slot, index) => {
         const root = createMoonJelly({ diameterMeters: 0.26, seed: 41 + index * 7 });
 
-        // The bell is authored at 22% opacity, which disappears against a dark
-        // hero. Lift it just enough to read, and add a faint self-glow.
+        // The bell is authored at 22% opacity, which disappears against deep
+        // water. Lift it, and give it a faint self-glow.
         root.traverse((object) => {
           if (!(object instanceof Mesh)) return;
           const materials = Array.isArray(object.material)
@@ -127,13 +211,12 @@ function MarineLife({ paused, compact }: { paused: boolean; compact: boolean }) 
             material.transparent = true;
             material.opacity = Math.max(material.opacity, 0.6);
             material.emissive = JELLY_GLOW.clone();
-            material.emissiveIntensity = 0.95;
+            material.emissiveIntensity = 0.7;
           });
         });
 
         return { slot, root };
-      });
-    },
+      }),
     [compact]
   );
 
@@ -148,7 +231,8 @@ function MarineLife({ paused, compact }: { paused: boolean; compact: boolean }) 
           seed: 21 + index * 13,
         });
 
-        // Lift the olive blades out of the teal water without repainting them.
+        // The environment light does most of the work now; a little emissive
+        // keeps the blades olive instead of grey.
         root.traverse((object) => {
           if (!(object instanceof Mesh)) return;
           const materials = Array.isArray(object.material)
@@ -158,7 +242,7 @@ function MarineLife({ paused, compact }: { paused: boolean; compact: boolean }) 
           materials.forEach((material) => {
             if (!(material instanceof MeshToonMaterial)) return;
             material.emissive = new Color('#1d3f22');
-            material.emissiveIntensity = 0.45;
+            material.emissiveIntensity = 0.3;
           });
         });
 
@@ -167,48 +251,17 @@ function MarineLife({ paused, compact }: { paused: boolean; compact: boolean }) 
     [compact]
   );
 
-  // One instanced draw for the whole school: 256 slots of shared geometry with
-  // per-instance morph weights, so the count is cheap.
-  const school = useMemo(
-    () =>
-      createSardineSchool({
-        count: compact ? 110 : 190,
-        capacity: 256,
-        lengthMeters: 0.25,
-      }),
-    [compact]
-  );
-
-  const travelX = useRef(SCHOOL.startX);
-
-  // Factories own their geometry and materials, so release them on unmount.
   useEffect(
     () => () => {
-      school.dispose();
       jellies.forEach(({ root }) => disposeObject(root));
       kelp.forEach(({ root }) => disposeObject(root));
     },
-    [school, jellies, kelp]
+    [jellies, kelp]
   );
 
   useFrame((state, delta) => {
-    if (paused) return;
-
     const dt = Math.min(delta, 0.05);
     const time = state.clock.elapsedTime;
-
-    school.update(dt);
-    travelX.current += dt * SCHOOL.speed;
-    if (travelX.current > SCHOOL.endX) travelX.current = SCHOOL.startX;
-
-    school.root.position.set(
-      travelX.current,
-      SCHOOL.y + Math.sin(time * 0.21) * 0.12,
-      SCHOOL.z
-    );
-    // Head is -X, so the school faces its direction of travel.
-    school.root.rotation.y = Math.PI;
-    school.root.rotation.z = Math.sin(time * 0.19) * 0.03;
 
     jellies.forEach(({ root, slot }, index) => {
       updateMoonJelly(root, dt);
@@ -220,8 +273,7 @@ function MarineLife({ paused, compact }: { paused: boolean; compact: boolean }) 
     });
 
     kelp.forEach(({ root, slot }, index) => {
-      root.rotation.z =
-        slot.rotation * 0.003 + Math.sin(time * 0.19 + index) * 0.012;
+      root.rotation.z = slot.rotation * 0.003 + Math.sin(time * 0.19 + index) * 0.012;
     });
   });
 
@@ -245,32 +297,26 @@ function MarineLife({ paused, compact }: { paused: boolean; compact: boolean }) 
         />
       ))}
 
-      <primitive
-        object={school.root}
-        position={[SCHOOL.startX, SCHOOL.y, SCHOOL.z]}
-        rotation={[0, Math.PI, 0]}
-        scale={SCHOOL.scale}
-      />
-
+      <SardineSchools compact={compact} />
       <MarineSnow count={compact ? 80 : 150} />
     </group>
   );
 }
 
-/** Very small pointer parallax; only runs on fine pointers and when motion is allowed. */
+/** Very small pointer parallax; fine pointers only. */
 function CameraRig({ enabled }: { enabled: boolean }) {
   useFrame((state, delta) => {
     if (!enabled) return;
     const { camera, pointer } = state;
     camera.position.x = MathUtils.damp(camera.position.x, pointer.x * 0.5, 1.6, delta);
     camera.position.y = MathUtils.damp(camera.position.y, 1.05 + pointer.y * 0.28, 1.6, delta);
-    camera.lookAt(0, 0.45, 0);
+    camera.lookAt(0, 0.4, 0);
   });
 
   return null;
 }
 
-const OceanScene: React.FC<OceanSceneProps> = ({ paused, compact, onReady }) => {
+const OceanScene: React.FC<OceanSceneProps> = ({ compact, onReady }) => {
   const [parallax, setParallax] = useState(false);
 
   useEffect(() => {
@@ -285,38 +331,28 @@ const OceanScene: React.FC<OceanSceneProps> = ({ paused, compact, onReady }) => 
     <Canvas
       dpr={[1, compact ? 1.5 : 1.8]}
       camera={{ position: [0, 1.05, 7.6], fov: 42, near: 0.1, far: 60 }}
-      gl={{
-        alpha: true,
-        antialias: !compact,
-        powerPreference: 'high-performance',
-      }}
-      frameloop={paused ? 'demand' : 'always'}
+      gl={{ alpha: true, antialias: !compact, powerPreference: 'high-performance' }}
+      frameloop='always'
       onCreated={({ gl }) => {
         gl.setClearAlpha(0);
-        gl.toneMappingExposure = 1.35;
+        gl.toneMappingExposure = 1.28;
         onReady?.();
       }}
       aria-hidden='true'>
-      <fogExp2 attach='fog' args={['#0b3a4d', 0.03]} />
+      <Suspense fallback={null}>
+        <BayEnvironment />
+      </Suspense>
 
-      <ambientLight intensity={0.75} color='#9fe3e0' />
-      <hemisphereLight args={['#d5eef7', '#1d4c4e', 2.1]} />
-      <directionalLight position={[6, 9, 6]} intensity={3.2} color='#fff3dc' />
-      <directionalLight position={[3.5, 5.5, 6.5]} intensity={2.4} color='#ffd9a8' />
-      <directionalLight position={[6, 2.5, -6]} intensity={1.6} color='#9ff7df' />
-      <directionalLight position={[-6, 3, -5]} intensity={2.1} color='#51ffcb' />
-      <spotLight
-        position={[1.5, 4.5, 5.5]}
-        angle={0.7}
-        penumbra={1}
-        intensity={40}
-        distance={18}
-        color='#ffe9c9'
-      />
-      <pointLight position={[2, -1.5, 3]} intensity={26} color='#2fd9c4' distance={12} />
+      <fogExp2 attach='fog' args={['#0a3346', 0.026]} />
 
-      <MarineLife paused={paused} compact={compact} />
-      <CameraRig enabled={parallax && !paused} />
+      {/* The environment map carries ambient light; these two give shape and rim. */}
+      <directionalLight position={[5, 7, 6]} intensity={2.6} color='#fff1d6' />
+      <directionalLight position={[-6, 2.5, -4]} intensity={1.9} color='#5ff0cf' />
+      <directionalLight position={[1.5, 1.5, 7]} intensity={1.1} color='#dff7ff' />
+      <directionalLight position={[2, -3, 5]} intensity={0.7} color='#1d6f7a' />
+
+      <MarineLife compact={compact} />
+      <CameraRig enabled={parallax} />
     </Canvas>
   );
 };

@@ -27,7 +27,7 @@ const Header: React.FC = () => {
               className='rounded-full mr-2' // Optional styling
             />
             <span className='ml-2' style={{ userSelect: 'none' }}>
-              Monterey Bay Tech Meetup
+              Monterey Bay Tech
             </span>
           </div>
         </Link>

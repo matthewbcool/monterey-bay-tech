@@ -11,7 +11,7 @@ interface Event {
 }
 
 export const metadata: Metadata = {
-  title: 'Monterey Bay Tech Meetup',
+  title: 'Monterey Bay Tech',
   description:
     'Connecting and inspiring the tech community in the Monterey Bay area.',
 };
