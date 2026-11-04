@@ -15,7 +15,7 @@ const Header: React.FC = () => {
 
   return (
     <header className='site-header text-white shadow-lg'>
-      <div className='container mx-auto flex justify-between items-center py-4 px-6'>
+      <div className='mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-4 lg:px-8'>
         {/* Logo with Image */}
         <Link href='/' className='text-2xl font-bold'>
           <div className='flex items-center'>
@@ -55,7 +55,7 @@ const Header: React.FC = () => {
             <li>
               <Link
                 href='/calendar'
-                className={`nav-link ${
+                className={`nav-link rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#51ffcb] focus-visible:ring-offset-4 focus-visible:ring-offset-[#143b88] ${
                   pathname === '/calendar' ? 'active' : ''
                 }`}>
                 Calendar
@@ -64,7 +64,7 @@ const Header: React.FC = () => {
             <li>
               <Link
                 href='/contact'
-                className={`nav-link ${
+                className={`nav-link rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#51ffcb] focus-visible:ring-offset-4 focus-visible:ring-offset-[#143b88] ${
                   pathname === '/contact' ? 'active' : ''
                 }`}>
                 Contact

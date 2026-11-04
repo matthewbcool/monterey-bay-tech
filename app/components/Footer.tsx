@@ -11,18 +11,18 @@ const Footer: React.FC = () => {
   }, []);
 
   return (
-    <footer className='bg-gray-800 text-white py-4'>
-      <div className='container mx-auto text-center'>
-        {year && (
-          <p className='text-sm mb-2'>
-            &copy; {year} Monterey Bay Tech Meetup. All rights reserved.
-          </p>
-        )}
-        <p className='text-sm'>
-          <Link href='/contact' className='hover:text-gray-400'>
-            Contact Us
-          </Link>
+    <footer className='bg-[#0f2e63] text-white/80'>
+      <div className='mx-auto flex w-full max-w-6xl flex-col items-center justify-between gap-2 px-6 py-6 text-sm sm:flex-row lg:px-8'>
+        <p>
+          {year ? `© ${year} Monterey Bay Tech Meetup` : 'Monterey Bay Tech Meetup'}
         </p>
+        <nav aria-label='Footer'>
+          <Link
+            href='/contact'
+            className='font-semibold text-white underline-offset-4 transition hover:text-[#51ffcb] hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#51ffcb] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0f2e63]'>
+            Contact us
+          </Link>
+        </nav>
       </div>
     </footer>
   );
