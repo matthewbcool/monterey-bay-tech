@@ -25,7 +25,12 @@ copied from [Monterey Bay Cozy](https://github.com/matthewbcool/Monterey-Bay-Coz
 ## Adaptations
 
 - **Sardine school.** `createSardineSchool()` builds one instanced draw for the
-  whole school (shared geometry, per-instance morph weights). The sea otter was
+  whole school (shared geometry, per-instance morph weights). This copy adds two
+  optional behaviours the hero needs: `setWrapWidth()`/`setTravel()` wrap each
+  fish across the visible width for an endless current, and
+  `schooling.setThreat()` adds a localised avoidance force plus a brief speed
+  allowance so the school parts around the pointer. Both default to off, so the
+  upstream behaviour is unchanged for any other use. The sea otter was
   vendored for an earlier revision of the hero and is currently unused; it is
   kept because it is complete and cheap to re-enable.
 - **No distance LOD.** Upstream calls `defineGeometryLods()` (meshoptimizer WASM)

@@ -91,10 +91,11 @@ const OceanHero: React.FC = () => {
     <section
       ref={sectionRef}
       aria-labelledby='ocean-hero-heading'
+      aria-describedby='ocean-hero-description'
       className='relative isolate -mt-8 overflow-hidden bg-[#04222f] text-white'>
       {/* Decorative backdrop: poster first, live scene on top once it is ready. */}
       <div className='absolute inset-0' aria-hidden='true'>
-        <div className='absolute inset-0 bg-gradient-to-br from-[#04222f] via-[#063344] to-[#0a4d56]' />
+        <div className='absolute inset-0 bg-gradient-to-br from-[#031a24] via-[#052836] to-[#063a45]' />
         <Image
           src='/assets/ocean-hero-poster.jpg'
           alt=''
@@ -138,12 +139,20 @@ const OceanHero: React.FC = () => {
           <h1
             id='ocean-hero-heading'
             className='text-4xl font-bold leading-[1.05] tracking-tight text-white sm:text-5xl lg:text-6xl'>
-            A tech community with the ocean in its backyard.
+            Technology is for everyone. So is this community.
           </h1>
 
-          <p className='mt-5 max-w-lg text-base leading-relaxed text-white/80 sm:text-lg'>
-            Meetups, hack nights and workshops across Monterey Bay. Come for the
-            code, stay for the people.
+          <p className='mt-5 max-w-lg text-base leading-relaxed text-white/85 sm:text-lg'>
+            We bring together people in and around Monterey Bay who love
+            technology — engineers, students, founders and the tech-curious.
+            Talks, hack nights and workshops at every level. Come for the code,
+            stay for the people.
+          </p>
+
+          <p id='ocean-hero-description' className='sr-only'>
+            Decorative moving illustration: a school of Pacific sardines swims
+            through swaying giant kelp, with moon jellies drifting past. The
+            sardines turn away from the pointer.
           </p>
 
           <div className='mt-8 flex flex-col gap-3 sm:flex-row sm:items-center'>
@@ -173,13 +182,6 @@ const OceanHero: React.FC = () => {
             </a>
           </div>
 
-          <div className='mt-10 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-white/85'>
-            <p className='max-w-sm leading-relaxed'>
-              {sceneActive
-                ? 'Animated: a school of Pacific sardines moves through swaying giant kelp and moon jellies.'
-                : 'Illustration: a school of Pacific sardines moves through swaying giant kelp and moon jellies.'}
-            </p>
-          </div>
         </div>
       </div>
     </section>

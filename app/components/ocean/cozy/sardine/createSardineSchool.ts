@@ -30,6 +30,8 @@ export interface SardineSchool extends Omit<FishModel, 'physics' | 'parts'> {
   setTravel(travel: number): void;
   /** The visible width in local units; fish wrap at its edges. */
   setWrapWidth(width: number): void;
+  /** A point the school swims away from, in local space. */
+  setThreat(x: number, y: number, z: number, active?: boolean): void;
 }
 
 /** Shared geometry + per-instance morph weights, one visible draw for the entire school. */
@@ -138,6 +140,7 @@ export function createSardineSchool({ count = 48, capacity = 256, lengthMeters =
     setTravel(next: number) { travel = wrapWidth > 0 ? next % wrapWidth : next; },
     /** The visible width in local units; fish wrap at its edges. */
     setWrapWidth(next: number) { wrapWidth = Math.max(0, next); },
+    setThreat(x: number, y: number, z: number, active = true) { formation.setThreat(x, y, z, active); },
     setSwimMode(next, immediate = false) { if (disposed) return; if (next !== 'slow' && next !== 'fast') throw new Error(`Unknown swim mode: ${next}`); mode = next; if (immediate) blend = next === 'fast' ? 1 : 0; pose(); },
     setLifeState(next) { if (disposed) return; if (next !== 'alive' && next !== 'caught') throw new Error(`Unknown fish state: ${next}`); lifeState = next; pose(); },
     setMotionOwner(next) { if (disposed) return; if (!['external', 'path', 'physics'].includes(next)) throw new Error(`Unknown motion owner: ${next}`); motionOwner = next; },
