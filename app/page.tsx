@@ -1,4 +1,4 @@
-import About from '../app/about/page';
+import About from './components/About';
 import OceanHero from '../app/components/ocean/OceanHero';
 import { Metadata } from 'next';
 interface Event {
