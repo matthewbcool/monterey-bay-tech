@@ -65,6 +65,12 @@ const OceanHero: React.FC = () => {
     const node = sectionRef.current;
     if (!node) return;
 
+    // If the hero is already on screen at mount, start immediately rather
+    // than waiting for the observer's first callback.
+    if (node.getBoundingClientRect().top < window.innerHeight) {
+      setInView(true);
+    }
+
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries.some((entry) => entry.isIntersecting)) {
